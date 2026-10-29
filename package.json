@@ -1,0 +1,25 @@
+{
+  "name": "room-booking",
+  "version": "1.2.0",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "jest",
+    "docs:check": "tsc -p jsconfig.json && eslint src",
+    "docs:html": "jsdoc -c jsdoc.json"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.6.2",
+    "eslint": "^9.39.5",
+    "eslint-plugin-jsdoc": "^64.5.4",
+    "jest": "^30.0.0",
+    "jsdoc": "^4.0.5",
+    "supertest": "^7.1.0",
+    "typescript": "^6.0.3"
+  }
+}

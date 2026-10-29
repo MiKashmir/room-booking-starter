@@ -1,0 +1,4 @@
+{
+  "source": { "include": ["src"] },
+  "opts": { "destination": "docs/api", "recurse": true }
+}
