@@ -1,0 +1,191 @@
+openapi: 3.1.0
+info:
+  title: Room Booking API
+  version: 1.0.0
+  description: API для бронювання аудиторій коледжу.
+  license:
+    name: MIT
+    identifier: MIT
+# Оскільки автентифікації немає, залишаємо пустий масив з коментарем
+security: []
+servers:
+  - url: http://127.0.0.1:3000
+    description: Локальний сервер
+
+paths:
+  /api/rooms:
+    get:
+      operationId: getRooms
+      summary: Отримати список аудиторій
+      responses:
+        '200':
+          description: Успішний запит
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Room'
+        '400':
+          description: Поганий запит
+
+  /api/rooms/{id}/bookings:
+    get:
+      operationId: getRoomBookings
+      summary: Отримати бронювання аудиторії на конкретну дату
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Масив бронювань
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Booking'
+        '400':
+          description: Не вказано дату
+        '404':
+          description: Аудиторію не знайдено
+
+  /api/rooms/{id}/free:
+    get:
+      operationId: getFreeSlots
+      summary: Знайти вільні проміжки часу
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: min
+          in: query
+          schema:
+            type: integer
+            default: 45
+      responses:
+        '200':
+          description: Масив вільних проміжків
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Slot'
+        '400':
+          description: Некоректні параметри запиту
+        '404':
+          description: Аудиторію не знайдено
+
+  /api/bookings:
+    post:
+      operationId: createBooking
+      summary: Створити нове бронювання
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookingInput'
+            example:
+              roomId: "101"
+              date: "2026-10-30"
+              from: "10:00"
+              to: "11:20"
+              who: "Іваненко І.І."
+      responses:
+        '201':
+          description: Бронювання успішно створено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '400':
+          description: Помилка валідації (наприклад, перевищено ліміт годин)
+        '404':
+          description: Аудиторію не знайдено
+        '409':
+          description: Конфлікт часу (перетин із існуючим бронюванням)
+
+  /api/bookings/{id}:
+    delete:
+      operationId: deleteBooking
+      summary: Скасувати бронювання
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Бронювання успішно скасовано
+        '400':
+          description: Занадто пізно для скасування (менше 12 годин)
+        '404':
+          description: Бронювання не знайдено
+
+components:
+  schemas:
+    Room:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        capacity:
+          type: integer
+    Booking:
+      type: object
+      properties:
+        id:
+          type: string
+        roomId:
+          type: string
+        date:
+          type: string
+        from:
+          type: string
+        to:
+          type: string
+        who:
+          type: string
+    BookingInput:
+      type: object
+      required: [roomId, date, from, to, who]
+      properties:
+        roomId:
+          type: string
+        date:
+          type: string
+        from:
+          type: string
+        to:
+          type: string
+        who:
+          type: string
+    Slot:
+      type: object
+      properties:
+        from:
+          type: string
+        to:
+          type: string
